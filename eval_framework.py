@@ -65,9 +65,9 @@ def filter_json_logs(log_data: dict[int, dict]) -> dict[int, dict]:
             "winogrande_acc": log["results"]["winogrande"]["acc,none"],
             "truthfulqa_mc2_acc": log["results"]["truthfulqa_mc2"]["acc,none"],
             "hellaswag_acc_norm": log["results"]["hellaswag"]["acc_norm,none"],
-            #"gsm8k_exact_match_flexible": log["results"]["gsm8k"][
+            # "gsm8k_exact_match_flexible": log["results"]["gsm8k"][
             #    "exact_match,flexible-extract"
-            #],
+            # ],
             "arc_challenge_acc_norm": log["results"]["arc_challenge"]["acc_norm,none"],
             "mmlu_acc": log["results"]["mmlu"]["acc,none"],
             "toxigen_acc_norm": log["results"]["toxigen"]["acc_norm,none"],
@@ -77,10 +77,10 @@ def filter_json_logs(log_data: dict[int, dict]) -> dict[int, dict]:
 
 
 def create_plot(df: pd.DataFrame, log_dir: str, plot_title: str) -> None:
-    ax = df.plot(style=["o-"] * 7)
+    ax = df.plot(style=["o-"] * 7, zorder=2)
     fig = ax.get_figure()
     ax.set_title(f"Task eval of: {plot_title}")
-    ax.grid()
+    ax.grid(axis="y", zorder=1, alpha=0.4)
     fig.savefig(os.path.join(log_dir, "..", "figure.png"))
 
 
