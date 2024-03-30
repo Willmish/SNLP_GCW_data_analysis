@@ -24,7 +24,7 @@ def parse_arguments() -> argparse.Namespace:
         "--plot_title",
         type=str,
         required=True,
-        help="Name of the run to be plotted, will be the title of the plot (e.g. Batch size 8, Sequential size 512 splits 4)"
+        help="Name of the run to be plotted, will be the title of the plot (e.g. Batch size 8, Sequential size 512 splits 4)",
     )
     parser.add_argument(
         "--eval_dataset",
@@ -40,7 +40,6 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-
 def calculate_flagged_proportion_and_agreement(data: dict) -> dict:
     flagged_moderation = np.array(
         [line["flagged"]["QAModeration"] for line in data], dtype=bool
@@ -51,10 +50,36 @@ def calculate_flagged_proportion_and_agreement(data: dict) -> dict:
     }
 
 
+def calculate_whitespace_count(data: dict) -> dict:
+    whitespace_count = np.array(
+        [
+            (
+                0
+                if len(line["response"]) == 0
+                else (
+                    len(line["response"].split(" "))
+                    + len(line["response"].split("\n"))
+                    + 2
+                )
+                / len(line["response"])
+            )
+            for line in data
+        ],
+        dtype=int,
+    )
+
+    return {
+        "whitespace/characters_in_response": whitespace_count.mean(),
+    }
+
+
 def plot_metrics(metrics: list[dict], output_dir: str, plot_title: str) -> None:
     """Plot metrics."""
     model_names = np.asarray([row["model_name"] for row in metrics])
     moderation = np.asarray([row["flagged/all"] for row in metrics])
+    whitespace = np.asarray(
+        [row["whitespace/characters_in_response"] for row in metrics]
+    )
     bar_width = 0.25
     index = np.arange(len(moderation))
     _, ax = plt.subplots(figsize=(8, 6), dpi=150)
@@ -62,13 +87,26 @@ def plot_metrics(metrics: list[dict], output_dir: str, plot_title: str) -> None:
         index,
         1.0 - moderation,
         bar_width,
-        label="beaver-dam-7b moderated",
+        label="Model safety evaluation",
         color="#FF6D60",
         alpha=0.85,
         zorder=2,
     )
+    plt.legend(bbox_to_anchor=(0.55, -0.2), loc="lower right")
 
-    plt.grid(axis="y", color="k", alpha=0.2, zorder=1)
+    ax_twin = ax.twinx()
+
+    ax_twin.scatter(
+        index,
+        whitespace,
+        s=100,
+        label="space/response length ratio",
+        alpha=0.85,
+        zorder=2,
+    )
+    plt.legend(bbox_to_anchor=(0.55, -0.3), loc="lower right")
+
+    ax.grid(axis="y", color="k", alpha=0.2, zorder=1)
     # ax.set_xticks(index + bar_width)
     ax.set_xticks(index)
     ax.set_xticklabels(model_names)
@@ -79,9 +117,11 @@ def plot_metrics(metrics: list[dict], output_dir: str, plot_title: str) -> None:
     ax.axhline(y=1.0, color="k", linestyle="-.", alpha=0.5)
     ax.set_yticklabels([f"{i}%" for i in range(40, 110, 10)])
     ax.set_ylim(0.35, 1.03)
-    plt.legend(bbox_to_anchor=(0.05, -0.3), loc="lower left")
 
-    plt.legend(bbox_to_anchor=(0.95, -0.3), loc="lower right")
+    ax_twin.set_yticks(np.arange(0, 0.3, 0.03))
+    ax_twin.set_yticklabels([f"{i/100}" for i in range(0, 30, 3)])
+    ax_twin.set_ylim(0, 0.3)
+
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "flagged-proportion.png"))
 
@@ -89,9 +129,7 @@ def plot_metrics(metrics: list[dict], output_dir: str, plot_title: str) -> None:
 def main() -> None:
     args = parse_arguments()
 
-    with open(
-        os.path.join(args.output_dir, "evaluation.json"), encoding="utf-8"
-    ) as f:
+    with open(os.path.join(args.output_dir, "evaluation.json"), encoding="utf-8") as f:
         data = json.load(f)
 
     model_names_set = set([line["model"] for line in data])
@@ -108,6 +146,7 @@ def main() -> None:
             {
                 "model_name": model_name,
                 **calculate_flagged_proportion_and_agreement(model_data),
+                **calculate_whitespace_count(model_data),
             },
         )
 
