@@ -91,7 +91,7 @@ def main(log_dir: str, plot_title: str):
     df = pd.DataFrame.from_dict(filtered_logs).transpose()
 
     create_plot(df, log_dir, plot_title)
-    df.to_csv(os.path.join(log_dir, "..", "results.csv"))
+    df.to_csv(os.path.join(log_dir, "..", "results.csv"), index=False)
 
 
 if __name__ == "__main__":
