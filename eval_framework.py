@@ -80,6 +80,7 @@ def create_plot(df: pd.DataFrame, log_dir: str, plot_title: str) -> None:
     ax = df.plot(style=["o-"] * 7)
     fig = ax.get_figure()
     ax.set_title(f"Task eval of: {plot_title}")
+    ax.grid()
     fig.savefig(os.path.join(log_dir, "..", "figure.png"))
 
 
