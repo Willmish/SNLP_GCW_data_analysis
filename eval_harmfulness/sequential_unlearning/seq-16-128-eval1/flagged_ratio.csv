@@ -1,3 +1,3 @@
-model_name,flagged/all,whitespace/characters_in_response
-idx_0,0.2957142857142857,0.05
-idx_20,0.2057142857142857,0.032857142857142856
+model_name,flagged/all,special_char_count/characters_in_response,empty_response_ratio
+idx_0,0.2957142857142857,0.3581524040955957,0.0
+idx_20,0.2057142857142857,0.5681949215717351,0.0

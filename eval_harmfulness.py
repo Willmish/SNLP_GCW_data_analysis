@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import argparse
+import re
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -50,26 +51,27 @@ def calculate_flagged_proportion_and_agreement(data: dict) -> dict:
     }
 
 
-def calculate_whitespace_count(data: dict) -> dict:
-    whitespace_count = np.array(
+def calculate_output_quality_heuristics(data: dict) -> dict:
+    special_char_count = np.array(
         [
             (
                 0
                 if len(line["response"]) == 0
-                else (
-                    len(line["response"].split(" "))
-                    + len(line["response"].split("\n"))
-                    + 2
-                )
-                / len(line["response"])
+                else len(re.findall("[\W]", line["response"])) / len(line["response"])
             )
             for line in data
         ],
-        dtype=int,
+        dtype=float,
+    )
+
+    empty_count = np.array(
+        [(1 if len(line["response"]) == 0 else 0) for line in data],
+        dtype=float,
     )
 
     return {
-        "whitespace/characters_in_response": whitespace_count.mean(),
+        "special_char_count/characters_in_response": special_char_count.mean(),
+        "empty_response_ratio": empty_count.mean(),
     }
 
 
@@ -77,9 +79,10 @@ def plot_metrics(metrics: list[dict], output_dir: str, plot_title: str) -> None:
     """Plot metrics."""
     model_names = np.asarray([row["model_name"] for row in metrics])
     moderation = np.asarray([row["flagged/all"] for row in metrics])
-    whitespace = np.asarray(
-        [row["whitespace/characters_in_response"] for row in metrics]
+    special_chars = np.asarray(
+        [row["special_char_count/characters_in_response"] for row in metrics]
     )
+    empty = np.asarray([row["empty_response_ratio"] for row in metrics])
     bar_width = 0.25
     index = np.arange(len(moderation))
     _, ax = plt.subplots(figsize=(8, 6), dpi=150)
@@ -98,13 +101,26 @@ def plot_metrics(metrics: list[dict], output_dir: str, plot_title: str) -> None:
 
     ax_twin.scatter(
         index,
-        whitespace,
+        special_chars,
         s=100,
-        label="space/response length ratio",
+        label="special chars/all chars ratio",
+        color="#00FF00",
+        alpha=0.85,
+        zorder=2,
+        marker="s",
+    )
+
+    ax_twin.scatter(
+        index,
+        empty,
+        s=100,
+        label="empty responses ratio",
+        color="#0000FF",
         alpha=0.85,
         zorder=2,
     )
-    plt.legend(bbox_to_anchor=(0.55, -0.3), loc="lower right")
+
+    plt.legend(bbox_to_anchor=(0.55, -0.4), loc="lower right")
 
     ax.grid(axis="y", color="k", alpha=0.2, zorder=1)
     # ax.set_xticks(index + bar_width)
@@ -118,9 +134,9 @@ def plot_metrics(metrics: list[dict], output_dir: str, plot_title: str) -> None:
     ax.set_yticklabels([f"{i}%" for i in range(40, 110, 10)])
     ax.set_ylim(0.35, 1.03)
 
-    ax_twin.set_yticks(np.arange(0, 0.3, 0.03))
-    ax_twin.set_yticklabels([f"{i/100}" for i in range(0, 30, 3)])
-    ax_twin.set_ylim(0, 0.3)
+    ax_twin.set_yticks(np.arange(0, 1, 0.1))
+    ax_twin.set_yticklabels([f"{i*10}%" for i in range(0, 10, 1)])
+    ax_twin.set_ylim(0, 1)
 
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "flagged-proportion.png"))
@@ -146,7 +162,7 @@ def main() -> None:
             {
                 "model_name": model_name,
                 **calculate_flagged_proportion_and_agreement(model_data),
-                **calculate_whitespace_count(model_data),
+                **calculate_output_quality_heuristics(model_data),
             },
         )
 
