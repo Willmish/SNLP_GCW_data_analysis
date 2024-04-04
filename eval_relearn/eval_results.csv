@@ -1,0 +1,27 @@
+model_name,label,step_number,experiment_type
+batch_size_2,Batch Unlearning on 2 Samples,72,BATCH_UNLEARNING
+batch_size_8,Batch Unlearning on 8 Samples,72,BATCH_UNLEARNING
+batch_size_32,Batch Unlearning on 32 Samples,116,BATCH_UNLEARNING
+batch_size_128,Batch Unlearning on 128 Samples,176,BATCH_UNLEARNING
+batch_size_512,Batch Unlearning on 512 Samples,176,BATCH_UNLEARNING
+batch_size_1024,Batch Unlearning on 1024 Samples,176,BATCH_UNLEARNING
+batch_size_2048,Batch Unlearning on 2048 Samples,176,BATCH_UNLEARNING
+batch_size_32_lr5.66e-06,Batch Unlearning on 32 Samples with Scaled LR,248,BATCH_UNLEARNING_SCALED_LR
+batch_size_1024_lr3.2e-05,Batch Unlearning on 1024 Samples with Scaled LR,468,BATCH_UNLEARNING_SCALED_LR
+batch_size_512_lr2.26e-05,Batch Unlearning on 512 Samples with Scaled LR,468,BATCH_UNLEARNING_SCALED_LR
+samples_count_128_split_4,Sequential Unlearning on 128 Samples in 4 Splits,368,SEQUENTIAL_UNLEARNING
+samples_count_512_split_4,Sequential Unlearning on 512 Samples in 4 Splits,248,SEQUENTIAL_UNLEARNING
+batch_size_128_lr1.132e-05,Batch Unlearning on 128 Samples with Scaled LR,372,BATCH_UNLEARNING_SCALED_LR
+batch_size_2048_lr4.53e-05,Batch Unlearning on 2048 Samples with Scaled LR,956,BATCH_UNLEARNING_SCALED_LR
+samples_count_1024_split_4,Sequential Unlearning on 1024 Samples in 4 Splits,248,SEQUENTIAL_UNLEARNING
+samples_count_128_split_16,Sequential Unlearning on 128 Samples in 16 Splits,372,SEQUENTIAL_UNLEARNING
+samples_count_128_split_64,Sequential Unlearning on 128 Samples in 64 Splits,256,SEQUENTIAL_UNLEARNING
+samples_count_512_split_16,Sequential Unlearning on 512 Samples in 16 Splits,252,SEQUENTIAL_UNLEARNING
+samples_count_512_split_64,Sequential Unlearning on 512 Samples in 64 Splits,372,SEQUENTIAL_UNLEARNING
+samples_count_1024_split_16,Sequential Unlearning on 1024 Samples in 16 Splits,176,SEQUENTIAL_UNLEARNING
+samples_count_1024_split_64,Sequential Unlearning on 1024 Samples in 64 Splits,256,SEQUENTIAL_UNLEARNING
+opt1.3b_unlearned_harmful-for-real42,Continious Unlearning with seed 42,248,CONTINIOUS_UNLEARNING
+opt1.3b_unlearned_harmful-for-real456,Continious Unlearning with seed 456,176,CONTINIOUS_UNLEARNING
+opt1.3b_unlearned_harmful-for-real1234,Continious Unlearning with seed 1234,176,CONTINIOUS_UNLEARNING
+opt1.3b_unlearned_harmful-for-real8888,Continious Unlearning with seed 8888,244,CONTINIOUS_UNLEARNING
+opt1.3b_unlearned_harmful-for-real114514,Continious Unlearning with seed 114514,176,CONTINIOUS_UNLEARNING
