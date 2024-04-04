@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 class ExperimentType(Enum):
     UNKNOWN = -1
     BATCH_UNLEARNING = 1
-    BATCH_UNLEARNING_SCALE_LR = 2
+    BATCH_UNLEARNING_SCALED_LR = 2
     SEQUENTIAL_UNLEARNING = 3
     CONTINIOUS_UNLEARNING = 4
 
@@ -50,7 +50,7 @@ def get_label(result: Result):
         name = f"Batch Unlearning\non {sample_size} Samples"
         if "lr" in result.model_name:
             result.label = f"{name}\nwith Scaled LR"
-            result.experiment_type = ExperimentType.BATCH_UNLEARNING_SCALE_LR
+            result.experiment_type = ExperimentType.BATCH_UNLEARNING_SCALED_LR
         else:
             result.experiment_type = ExperimentType.BATCH_UNLEARNING
             result.label = name
@@ -69,6 +69,12 @@ def get_label(result: Result):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Plotting the relearning data from given jsons."
+    )
+    parser.add_argument(
+        "--export_csv",
+        type=str,
+        default="",
+        help="Export full step number data to csv file.",
     )
     parser.add_argument("jsons", metavar="jsons", type=str, nargs="+")
 
@@ -117,7 +123,7 @@ if __name__ == "__main__":
         for i in eval_results
         if (
             "512" in i.model_name
-            and i.experiment_type != ExperimentType.BATCH_UNLEARNING_SCALE_LR
+            and i.experiment_type != ExperimentType.BATCH_UNLEARNING_SCALED_LR
         )
     ]
     bars = ax.bar(
@@ -181,13 +187,13 @@ if __name__ == "__main__":
     plt.legend()
     plt.show()
 
-    # NOTE: BATCH_UNLEARNING_SCALE_LR
+    # NOTE: BATCH_UNLEARNING_SCALED_LR
     fig, ax = plt.subplots(figsize=(10, 8))
     x = np.arange(5)
     ys: Dict[int, List[Result]] = {32: [], 128: [], 512: [], 1024: [], 2048: []}
     for i in eval_results:
         if i.experiment_type in (
-            ExperimentType.BATCH_UNLEARNING_SCALE_LR,
+            ExperimentType.BATCH_UNLEARNING_SCALED_LR,
             ExperimentType.BATCH_UNLEARNING,
         ):
             trained_sample = int(i.model_name.split("_")[2])
@@ -225,7 +231,7 @@ if __name__ == "__main__":
     results.extend(
         i
         for i in eval_results
-        if i.experiment_type == ExperimentType.BATCH_UNLEARNING_SCALE_LR
+        if i.experiment_type == ExperimentType.BATCH_UNLEARNING_SCALED_LR
         and "512" in i.model_name
     )
     results.extend(
@@ -249,3 +255,18 @@ if __name__ == "__main__":
     ax.set_title("Unlearning Sample Count for Different Unlearning Methods")
     fig.autofmt_xdate()
     plt.show()
+
+    if args.export_csv != "" and str(args.export_csv).endswith(".csv"):
+        with open(args.export_csv, "w") as fin:
+            fin.writelines(["model_name,label,step_number,experiment_type\n"])
+            fin.writelines(
+                [
+                    "{},{},{},{}\n".format(
+                        i.model_name,
+                        i.label.replace("\n", " "),
+                        i.sample_count,
+                        str(i.experiment_type).split(".")[-1],
+                    )
+                    for i in eval_results
+                ]
+            )
