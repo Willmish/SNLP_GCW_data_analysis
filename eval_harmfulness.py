@@ -75,6 +75,17 @@ def calculate_output_quality_heuristics(data: dict) -> dict:
     }
 
 
+def calculate_response_length(data: dict) -> dict:
+    response_len = np.array(
+        [len(line["response"]) for line in data],
+        dtype=float,
+    )
+
+    return {
+        "avg_response_length": response_len.mean(),
+    }
+
+
 def plot_metrics(metrics: list[dict], output_dir: str, plot_title: str) -> None:
     """Plot metrics."""
     model_names = np.asarray([row["model_name"] for row in metrics])
@@ -141,6 +152,29 @@ def plot_metrics(metrics: list[dict], output_dir: str, plot_title: str) -> None:
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "flagged-proportion.png"))
 
+    plt.clf()
+    _, ax = plt.subplots(figsize=(8, 6), dpi=150)
+    avg_response_length = np.asarray([row["avg_response_length"] for row in metrics])
+    ax.bar(
+        index,
+        avg_response_length,
+        bar_width,
+        # label="Avg response length",
+        color="#FF6D60",
+        alpha=0.85,
+        zorder=2,
+    )
+
+    ax.set_xlabel("Model")
+    ax.set_ylabel("Characters")
+    ax.set_title(f"Average safety response length: {plot_title}")
+
+    ax.grid(axis="y", color="k", alpha=0.2, zorder=1)
+    plt.tight_layout()
+    # plt.legend()
+
+    plt.savefig(os.path.join(output_dir, "avg_response_rate.png"))
+
 
 def main() -> None:
     args = parse_arguments()
@@ -163,6 +197,7 @@ def main() -> None:
                 "model_name": model_name,
                 **calculate_flagged_proportion_and_agreement(model_data),
                 **calculate_output_quality_heuristics(model_data),
+                **calculate_response_length(model_data),
             },
         )
 
