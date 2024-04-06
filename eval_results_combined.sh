@@ -7,18 +7,21 @@ EVAL_HARMFULNESS_PATH=$BASE_PATH/eval_harmfulness
 BATCH_EVAL_PATH_HARMFULNESS=$EVAL_HARMFULNESS_PATH/batch_unlearning
 SEQ_EVAL_PATH_HARMFULNESS=$EVAL_HARMFULNESS_PATH/sequential_unlearning
 LLM_UNLEARN_EVAL_PATH_HARMFULNESS=$EVAL_HARMFULNESS_PATH/llm_unlearning_reproduced
+BATCH_SCALED_LR_EVAL_PATH_HARMFULNESS=$EVAL_HARMFULNESS_PATH/batch_unlearning_scaled_lr
 
 # Paths for LM framework benchmark results
 EVAL_FRAMEWORK_PATH=$BASE_PATH/eval_framework_tasks
 BATCH_EVAL_PATH_FRAMEWORK=$EVAL_FRAMEWORK_PATH/batch_unlearning
 SEQ_EVAL_PATH_FRAMEWORK=$EVAL_FRAMEWORK_PATH/sequential_unlearning
 LLM_UNLEARN_EVAL_PATH_FRAMEWORK=$EVAL_FRAMEWORK_PATH/llm_unlearning_reproduced
+BATCH_SCALED_LR_EVAL_PATH_FRAMEWORK=$EVAL_FRAMEWORK_PATH/batch_unlearning_scaled_lr
 
 # Paths for saving results combined
 EVAL_COMBINED_PATH=$BASE_PATH/eval_combined
 BATCH_EVAL_COMBINED_PATH=$EVAL_COMBINED_PATH/batch_unlearning
 SEQ_EVAL_COMBINED_PATH=$EVAL_COMBINED_PATH/sequential_unlearning
 LLM_UNLEARN_EVAL_COMBINED_PATH=$EVAL_COMBINED_PATH/llm_unlearning_reproduced
+BATCH_SCALED_LR_EVAL_COMBINED_PATH=$EVAL_COMBINED_PATH/batch_unlearning_scaled_lr
 
 VENV_ACTIVATION_PATH=$BASE_PATH/../venv/bin/activate
 
@@ -42,6 +45,7 @@ fi
 batch_runs=$(ls $BATCH_EVAL_PATH_HARMFULNESS)
 seq_runs=$(ls $SEQ_EVAL_PATH_HARMFULNESS)
 llm_unlearning_reproduced_runs=$(ls $LLM_UNLEARN_EVAL_PATH_HARMFULNESS)
+batch_scaled_lr_runs=$(ls $BATCH_SCALED_LR_EVAL_PATH_HARMFULNESS)
 
 echo "Processing results for batch runs.."
 for run in ${batch_runs[@]}
@@ -77,5 +81,16 @@ do
      --eval_csv_framework $LLM_UNLEARN_EVAL_PATH_FRAMEWORK/$run \
      --eval_csv_harmfulness $LLM_UNLEARN_EVAL_PATH_HARMFULNESS/$run \
      --log_dir $LLM_UNLEARN_EVAL_COMBINED_PATH/$run
+done
+echo "Processing results for batch scaled lr runs.."
+for run in ${batch_scaled_lr_runs[@]}
+do
+    echo "Run: $run"
+    mkdir -p $BATCH_SCALED_LR_EVAL_COMBINED_PATH/$run
+    python3 eval_results_combined.py \
+     --plot_title `basename $run` \
+     --eval_csv_framework $BATCH_SCALED_LR_EVAL_PATH_FRAMEWORK/$run \
+     --eval_csv_harmfulness $BATCH_SCALED_LR_EVAL_PATH_HARMFULNESS/$run \
+     --log_dir $BATCH_SCALED_LR_EVAL_COMBINED_PATH/$run
 done
 echo "Done"
