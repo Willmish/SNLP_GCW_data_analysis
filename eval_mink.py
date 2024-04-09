@@ -63,11 +63,12 @@ plt.rcParams.update(
     }
 )
 
-fig, ax1 = plt.subplots(figsize=(10, 6))
+fig, ax1 = plt.subplots(figsize=(10, 8))
 
 color = 'tab:red'
 ax1.set_xlabel('Step')
-ax1.set_ylabel('Smoothed then Normalized Bad Loss & Ratio Mink Unlearning/Reference', color=color)
+#Smoothed then Normalized 
+ax1.set_ylabel('Bad Loss \& Ratio Mink Unlearning/Reference', color=color)
 ax1.plot(badloss_combined['Step'], badloss_combined['bad loss'], color=color, label='Normalized Bad Loss')
 ax1.plot(badloss_combined['Step'], badloss_combined['ratio mink unlearning/reference'], color='tab:orange', linestyle='--', label='Normalized Ratio Mink Unlearning/Reference')
 ax1.tick_params(axis='y', labelcolor=color)
@@ -86,7 +87,13 @@ ax1.set_yticks(y_ticks_left)  # Apply the ticks to the left axis
 ax2.set_ylim([0.7, 0.9])  # Set the limit to match the ticks for the right axis
 ax2.set_yticks(y_ticks_right)  # Apply the ticks to the right axis
 
+# Adding a legend to the plot
+lines, labels = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+#ax1.legend(lines + lines2, labels + labels2, loc='best')
 plt.legend(
+    lines+lines2,
+    labels+labels2,
     # title="Method",
     loc="upper center",
     bbox_to_anchor=(
