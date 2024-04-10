@@ -13,7 +13,7 @@ matplotlib.rcParams.update(
 )
 matplotlib.use("pgf")
 
-df = pd.read_csv("adam_seq_performance_change_data.csv")
+df = pd.read_csv("adam_seq_performance_change_data_1024.csv")
 
 df_melted = df.melt(
     id_vars=["epoch_num", "split", "sample_counts"],
